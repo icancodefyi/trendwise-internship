@@ -27,9 +27,9 @@ interface TrendingTopic {
   category: string
   description: string
   keywords: string[]
-  image: string
-  videos: string[]
-  tweets: string[]
+  image?: string
+  videos?: string[]
+  tweets?: string[]
 }
 
 interface TrendingData {
@@ -213,74 +213,76 @@ export function TrendingTopics() {
         {/* Trending Topics */}
         <div className="space-y-4">
           <h4 className="text-sm font-medium">Top Trending Topics</h4>
-          {trendingData?.trending_topics?.map((topic) => {
-            const SourceIcon = getSourceIcon(topic.source)
-            const sourceColor = getSourceColor(topic.source)
-            
-            return (
-              <div key={topic.id} className="p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <SourceIcon className={`h-4 w-4 ${sourceColor}`} />
-                      <Badge variant="outline" className="text-xs">
-                        {topic.source}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Score: {topic.trend_score}
-                      </Badge>
-                    </div>
-                    
-                    <h5 className="font-medium text-sm mb-1 line-clamp-2">
-                      {topic.title}
-                    </h5>
-                    
-                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-                      {topic.description}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {topic.keywords.slice(0, 4).map((keyword, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {keyword}
+          <div className="max-h-96 overflow-y-auto space-y-4 pr-2">
+            {trendingData?.trending_topics?.map((topic) => {
+              const SourceIcon = getSourceIcon(topic.source)
+              const sourceColor = getSourceColor(topic.source)
+              
+              return (
+                <div key={topic.id} className="p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <SourceIcon className={`h-4 w-4 ${sourceColor}`} />
+                        <Badge variant="outline" className="text-xs">
+                          {topic.source}
                         </Badge>
-                      ))}
-                    </div>
+                        <Badge variant="secondary" className="text-xs">
+                          Score: {topic.trend_score}
+                        </Badge>
+                      </div>
+                      
+                      <h5 className="font-medium text-sm mb-1 line-clamp-2">
+                        {topic.title}
+                      </h5>
+                      
+                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                        {topic.description}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {topic.keywords.slice(0, 4).map((keyword, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {keyword}
+                          </Badge>
+                        ))}
+                      </div>
 
-                    {/* Media Preview */}
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                      {topic.image && (
-                        <div className="flex items-center gap-1">
-                          <ExternalLink className="h-3 w-3" />
-                          Image
-                        </div>
-                      )}
-                      {topic.videos.length > 0 && (
-                        <div className="flex items-center gap-1">
-                          <Play className="h-3 w-3" />
-                          {topic.videos.length} Video{topic.videos.length > 1 ? 's' : ''}
-                        </div>
-                      )}
-                      {topic.tweets.length > 0 && (
-                        <div className="flex items-center gap-1">
-                          <Twitter className="h-3 w-3" />
-                          {topic.tweets.length} Tweet{topic.tweets.length > 1 ? 's' : ''}
-                        </div>
-                      )}
+                      {/* Media Preview */}
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                        {topic.image && (
+                          <div className="flex items-center gap-1">
+                            <ExternalLink className="h-3 w-3" />
+                            Image
+                          </div>
+                        )}
+                        {topic.videos && topic.videos.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Play className="h-3 w-3" />
+                            {topic.videos.length} Video{topic.videos.length > 1 ? 's' : ''}
+                          </div>
+                        )}
+                        {topic.tweets && topic.tweets.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Twitter className="h-3 w-3" />
+                            {topic.tweets.length} Tweet{topic.tweets.length > 1 ? 's' : ''}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  
+                  <Button
+                    size="sm"
+                    className="w-full mt-3"
+                    onClick={() => generateArticleFromTrending(topic)}
+                  >
+                    Generate Article
+                  </Button>
                 </div>
-                
-                <Button
-                  size="sm"
-                  className="w-full mt-3"
-                  onClick={() => generateArticleFromTrending(topic)}
-                >
-                  Generate Article
-                </Button>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
 
         {(!trendingData?.trending_topics || trendingData.trending_topics.length === 0) && (

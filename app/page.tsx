@@ -11,7 +11,7 @@ import { Article } from '@/types/article'
 async function getArticles(): Promise<Article[]> {
   try {
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/articles`, {
+    const res = await fetch(`${baseUrl}/api/articles?limit=20`, {
       next: { revalidate: 60 }, // Revalidate every 60 seconds
     })
     
@@ -19,7 +19,9 @@ async function getArticles(): Promise<Article[]> {
       throw new Error('Failed to fetch articles')
     }
     
-    return res.json()
+    const data = await res.json()
+    // Handle both old format (direct array) and new format (with pagination)
+    return Array.isArray(data) ? data : (data.articles || [])
   } catch (error) {
     console.error('Error fetching articles:', error)
     return []

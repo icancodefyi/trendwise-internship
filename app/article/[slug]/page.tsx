@@ -52,7 +52,8 @@ async function getArticle(slug: string): Promise<Article | null> {
       return null
     }
     
-    return res.json()
+    const article = await res.json()
+    return article
   } catch (error) {
     console.error('Error fetching article:', error)
     return null

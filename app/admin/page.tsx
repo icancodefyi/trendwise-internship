@@ -1,4 +1,7 @@
 import React from 'react'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -6,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { AdminHeader } from '@/components/admin-header'
 import { BlogForm } from '@/components/blog-form'
 import { ArticleGenerator } from '@/components/article-generator'
+import { ArticleManagement } from '@/components/article-management'
 import { TrendingTopics } from '@/components/trending-topics'
 import { TrendingBotControl } from '@/components/trending-bot-control'
 import { 
@@ -20,6 +24,12 @@ import {
 } from 'lucide-react'
 
 const AdminPage = async () => {
+  // Check authentication
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect("/login")
+  }
 
   // Mock data for admin dashboard
   const stats = {
@@ -123,87 +133,91 @@ const AdminPage = async () => {
         </Card>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Blog Form */}
-        <div className="lg:col-span-2">
-          <BlogForm />
-        </div>
+      <div className="grid gap-8">
+        {/* Article Management */}
+        <ArticleManagement />
 
-        {/* Recent Articles */}
-        <div>
-          <Card className="border-2 hover:border-primary/20 transition-colors">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-muted border">
-                  <BarChart3 className="h-5 w-5 text-foreground" />
-                </div>
-                <div>
-                  <div className="text-xl font-bold">Recent Articles</div>
-                  <p className="text-sm text-muted-foreground font-normal">Latest published content</p>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {recentArticles.map((article, index) => (
-                  <div key={article._id} className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 space-y-2">
-                        <h4 className="font-semibold text-sm leading-tight line-clamp-2 hover:text-primary transition-colors cursor-pointer">
-                          {article.title}
-                        </h4>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5" />
-                            {article.publishedAt.toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })}
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Eye className="h-3.5 w-3.5" />
-                            {article.views.toLocaleString()}
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Blog Form */}
+          {/* <div className="lg:col-span-2">
+            <BlogForm />
+          </div> */}
+
+          {/* Recent Articles */}
+          <div>
+            <Card className="border-2 hover:border-primary/20 transition-colors">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-muted border">
+                    <BarChart3 className="h-5 w-5 text-foreground" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold">Recent Articles</div>
+                    <p className="text-sm text-muted-foreground font-normal">Latest published content</p>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {recentArticles.map((article, index) => (
+                    <div key={article._id} className="space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 space-y-2">
+                          <h4 className="font-semibold text-sm leading-tight line-clamp-2 hover:text-primary transition-colors cursor-pointer">
+                            {article.title}
+                          </h4>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="h-3.5 w-3.5" />
+                              {article.publishedAt.toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Eye className="h-3.5 w-3.5" />
+                              {article.views.toLocaleString()}
+                            </div>
                           </div>
                         </div>
+                        <Badge 
+                          variant={article.status === 'published' ? 'default' : 'secondary'} 
+                          className="text-xs font-medium"
+                        >
+                          {article.status}
+                        </Badge>
                       </div>
-                      <Badge 
-                        variant={article.status === 'published' ? 'default' : 'secondary'} 
-                        className="text-xs font-medium"
-                      >
-                        {article.status}
-                      </Badge>
+                      {index < recentArticles.length - 1 && (
+                        <Separator />
+                      )}
                     </div>
-                    {index < recentArticles.length - 1 && (
-                      <Separator />
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              <div className="pt-6 border-t mt-6">
-                <Button variant="outline" size="lg" className="w-full font-semibold">
-                  View All Articles
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+                
+                <div className="pt-6 border-t mt-6">
+                  <Button variant="outline" size="lg" className="w-full font-semibold">
+                    View All Articles
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Trending Topics */}
+          <div className="lg:col-span-1">
+            <TrendingTopics />
+          </div>
         </div>
 
-        {/* Trending Topics */}
-        <div className="lg:col-span-1">
-          <TrendingTopics />
+        {/* AI Article Generator */}
+        <div>
+          <ArticleGenerator />
         </div>
-      </div>
 
-      {/* AI Article Generator */}
-      <div className="mt-8">
-        <ArticleGenerator />
-      </div>
-
-
-      {/* Trending Bot Control */}
-      <div className="mt-8">
-        <TrendingBotControl />
+        {/* Trending Bot Control */}
+        <div>
+          <TrendingBotControl />
+        </div>
       </div>
     </div>
   )

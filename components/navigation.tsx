@@ -11,8 +11,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { User, LogOut, Settings, PenTool } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { User, LogOut, Settings, PenTool, Plus } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
+import { BlogFormModal } from "./blog-form-modal"
 
 export function Navigation() {
   const { data: session } = useSession()
@@ -60,6 +69,26 @@ export function Navigation() {
 
         <div className="flex items-center space-x-4">
           <ThemeToggle />
+          
+          {session && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="font-medium shadow-lg hover:shadow-xl transition-all">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Blog
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Create New Blog Post</DialogTitle>
+                  <DialogDescription>
+                    Write and publish your blog post with media content
+                  </DialogDescription>
+                </DialogHeader>
+                <BlogFormModal />
+              </DialogContent>
+            </Dialog>
+          )}
           
           {session ? (
             <DropdownMenu>

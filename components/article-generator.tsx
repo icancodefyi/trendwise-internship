@@ -29,11 +29,11 @@ export function ArticleGenerator() {
   ]
 
   const recentTopics = [
-    'AI Code Generation',
-    'React Server Components',
-    'TypeScript Performance',
-    'Web3 Development',
-    'Mobile-First Design'
+    'React 19 New Features',
+    'Next.js 15 Performance',
+    'AI in Web Development',
+    'TypeScript 5.6 Updates',
+    'Modern CSS Techniques'
   ]
 
   const handleGenerateArticle = async () => {
@@ -43,16 +43,37 @@ export function ArticleGenerator() {
     setGenerationStatus('generating')
     
     try {
-      // Simulate AI article generation
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      const response = await fetch('/api/articles/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic: topic.trim() }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate article')
+      }
+
+      const generatedArticle = await response.json()
+      console.log('Generated article:', generatedArticle)
+      
       setGenerationStatus('success')
       setTopic('')
+      
+      // Optional: Refresh the page or trigger a refetch of articles
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
+      
     } catch (error) {
+      console.error('Error generating article:', error)
       setGenerationStatus('error')
     } finally {
       setIsGenerating(false)
-      // Reset status after 3 seconds
-      setTimeout(() => setGenerationStatus('idle'), 3000)
+      // Reset status after 5 seconds
+      setTimeout(() => setGenerationStatus('idle'), 5000)
     }
   }
 
@@ -136,7 +157,7 @@ export function ArticleGenerator() {
                   <>
                     <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                     <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                      Generating article from trending data...
+                      Generating article with ChatGPT... This may take a minute.
                     </span>
                   </>
                 )}
@@ -144,7 +165,7 @@ export function ArticleGenerator() {
                   <>
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                      Article generated successfully! Check the articles list.
+                      Article generated successfully with ChatGPT! Refreshing articles list...
                     </span>
                   </>
                 )}
@@ -152,7 +173,7 @@ export function ArticleGenerator() {
                   <>
                     <AlertCircle className="h-4 w-4 text-red-600" />
                     <span className="text-sm font-medium text-red-700 dark:text-red-300">
-                      Failed to generate article. Please try again.
+                      Failed to generate article. Please check your OpenAI API key and try again.
                     </span>
                   </>
                 )}
@@ -183,17 +204,17 @@ export function ArticleGenerator() {
         {/* Features */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <h4 className="text-sm font-medium">AI Features</h4>
+            <h4 className="text-sm font-medium">ChatGPT Features</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• SEO-optimized content</li>
-              <li>• Trending keywords integration</li>
-              <li>• Meta tags generation</li>
+              <li>• GPT-4 powered content</li>
+              <li>• SEO-optimized articles</li>
+              <li>• Technical accuracy</li>
             </ul>
           </div>
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Content Quality</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Technical accuracy</li>
+              <li>• 1500-2500 word articles</li>
               <li>• Developer-focused writing</li>
               <li>• Code examples included</li>
             </ul>

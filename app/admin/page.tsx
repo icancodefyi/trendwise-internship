@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { AdminHeader } from '@/components/admin-header'
-import { ArticleGenerator } from '@/components/article-generator'
+import { BlogForm } from '@/components/blog-form'
 import { 
   BarChart3, 
   FileText, 
@@ -113,9 +113,9 @@ const AdminPage = async () => {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
-        {/* Article Generator */}
+        {/* Blog Form */}
         <div className="lg:col-span-2">
-          <ArticleGenerator />
+          <BlogForm />
         </div>
 
         {/* Recent Articles */}

@@ -88,8 +88,14 @@ const mockArticlesForFallback = [
 
 const HomePage = async () => {
   const articles = await getArticles()
-  const featuredArticles = articles.filter(article => article.featured)
-  const regularArticles = articles.filter(article => !article.featured)
+  const featuredArticles = articles.filter(article => article.featured).map(article => ({
+    ...article,
+    publishedAt: new Date(article.publishedAt),
+  }))
+  const regularArticles = articles.filter(article => !article.featured).map(article => ({
+    ...article,
+    publishedAt: new Date(article.publishedAt),
+  }))
 
   // If no articles from API, use fallback data
   const displayedFeatured = featuredArticles.length > 0 ? featuredArticles : mockArticlesForFallback.filter(article => article.featured)

@@ -104,6 +104,11 @@ export async function generateMetadata({ params }: ArticlePageProps) {
   const { slug } = await params
   const article = await getArticle(slug) || getMockArticle(slug)
   
+  // Ensure publishedAt is a Date object
+  if (article) {
+    article.publishedAt = new Date(article.publishedAt);
+  }
+  
   return {
     title: article.meta.title,
     description: article.meta.description,
@@ -120,100 +125,99 @@ export async function generateMetadata({ params }: ArticlePageProps) {
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const { slug } = await params
-  const article = await getArticle(slug)
-  
-  // If no article found in API, use mock data for development
-  const finalArticle = article || getMockArticle(slug)
-  
+  const { slug } = await params;
+  const article = await getArticle(slug);
+
+  const finalArticle = article || getMockArticle(slug);
+
   if (!finalArticle && article === null) {
-    notFound()
+    notFound();
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Article Header */}
-      <header className="mb-8">
-        <div className="flex flex-wrap gap-2 mb-4">
+      <header className="mb-12">
+        <div className="flex flex-wrap gap-2 mb-6">
           {finalArticle.tags.map((tag: string) => (
             <Badge key={tag} variant="secondary">
               {tag}
             </Badge>
           ))}
         </div>
-        
-        <h1 className="text-4xl font-bold tracking-tight mb-4 leading-tight">
+
+        <h1 className="text-5xl font-extrabold tracking-tight mb-6 leading-tight">
           {finalArticle.title}
         </h1>
-        
-        <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
+
+        <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
           {finalArticle.excerpt}
         </p>
-        
-        <div className="flex items-center justify-between flex-wrap gap-4">
+
+        <div className="flex items-center justify-between flex-wrap gap-6">
           <div className="flex items-center gap-4">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-12 w-12">
               <AvatarImage src="/placeholder-avatar.jpg" alt={finalArticle.author} />
               <AvatarFallback>AI</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium">{finalArticle.author}</p>
+              <p className="font-medium text-lg">{finalArticle.author}</p>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {finalArticle.publishedAt.toLocaleDateString('en-US', { 
+                  <Calendar className="h-5 w-5" />
+                  {new Date(finalArticle.publishedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
-                    month: 'long', 
-                    day: 'numeric' 
+                    month: 'long',
+                    day: 'numeric',
                   })}
                 </div>
                 <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-5 w-5" />
                   {finalArticle.readTime} min read
                 </div>
                 <div className="flex items-center gap-1">
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-5 w-5" />
                   {finalArticle.views.toLocaleString()} views
                 </div>
               </div>
             </div>
           </div>
-          
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-4">
             <Button variant="outline" size="sm">
-              <Bookmark className="h-4 w-4 mr-2" />
+              <Bookmark className="h-5 w-5 mr-2" />
               Save
             </Button>
             <Button variant="outline" size="sm">
-              <Share2 className="h-4 w-4 mr-2" />
+              <Share2 className="h-5 w-5 mr-2" />
               Share
             </Button>
           </div>
         </div>
       </header>
 
-      <Separator className="mb-8" />
+      <Separator className="mb-12" />
 
       {/* Article Content */}
-      <Card className="mb-8 border-0 shadow-lg">
+      <Card className="mb-12 border-0 shadow-lg">
         <CardContent className="p-12">
-          <div className="prose prose-gray dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-li:leading-relaxed prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
-            <ReactMarkdown 
+          <div className="prose prose-gray dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-p:leading-relaxed prose-li:leading-relaxed prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded">
+            <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                h1: ({ children }) => <h1 className="text-3xl font-bold mt-8 mb-6 first:mt-0">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-2xl font-semibold mt-8 mb-4 border-b border-border pb-2">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-xl font-medium mt-6 mb-3">{children}</h3>,
+                h1: ({ children }) => <h1 className="text-4xl font-bold mt-8 mb-6 first:mt-0">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-3xl font-semibold mt-8 mb-4 border-b border-border pb-2">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-2xl font-medium mt-6 mb-3">{children}</h3>,
                 p: ({ children }) => <p className="mb-4 leading-relaxed text-foreground/90">{children}</p>,
                 ul: ({ children }) => <ul className="my-4 space-y-2">{children}</ul>,
                 li: ({ children }) => <li className="ml-4 leading-relaxed">{children}</li>,
                 code: ({ children, className }) => {
-                  const isInline = !className
+                  const isInline = !className;
                   return isInline ? (
-                    <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>
+                    <code className="bg-muted px-2 py-1 rounded text-sm font-mono">{children}</code>
                   ) : (
                     <code className={className}>{children}</code>
-                  )
+                  );
                 },
                 pre: ({ children }) => (
                   <pre className="bg-muted/50 border rounded-lg p-4 overflow-x-auto my-6">
@@ -236,5 +240,5 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       {/* Comments Section */}
       <CommentSection articleId={finalArticle._id || 'mock-article-id'} />
     </div>
-  )
+  );
 }

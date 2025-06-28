@@ -16,7 +16,9 @@ import {
   AlertCircle,
   Image,
   Video,
-  Twitter
+  Twitter,
+  Sparkles,
+  Wand2
 } from 'lucide-react'
 
 interface BlogFormData {
@@ -40,6 +42,9 @@ export function BlogForm() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle')
+  const [aiTopic, setAiTopic] = useState('')
   const [mediaInputs, setMediaInputs] = useState({
     image: '',
     video: '',
@@ -150,6 +155,49 @@ export function BlogForm() {
     }))
   }
 
+  const handleGenerateWithAI = async () => {
+    if (!aiTopic.trim() || isGenerating) return
+    
+    setIsGenerating(true)
+    setGenerationStatus('generating')
+    
+    try {
+      const response = await fetch('/api/articles/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic: aiTopic.trim() }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate article')
+      }
+
+      const generatedArticle = await response.json()
+      
+      // Pre-fill the form with generated content
+      setFormData(prev => ({
+        ...prev,
+        title: generatedArticle.title || aiTopic,
+        excerpt: generatedArticle.excerpt || '',
+        content: generatedArticle.content || ''
+      }))
+      
+      setGenerationStatus('success')
+      setAiTopic('')
+      
+    } catch (error) {
+      console.error('Error generating article:', error)
+      setGenerationStatus('error')
+    } finally {
+      setIsGenerating(false)
+      // Reset status after 5 seconds
+      setTimeout(() => setGenerationStatus('idle'), 5000)
+    }
+  }
+
   if (!session?.user) {
     return (
       <Card>
@@ -174,6 +222,82 @@ export function BlogForm() {
       
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* AI Generation Section */}
+          <div className="p-4 border rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-blue-200 dark:border-blue-800">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="h-5 w-5 text-blue-600" />
+                <h4 className="font-semibold text-blue-900 dark:text-blue-100">AI Blog Generator</h4>
+              </div>
+              
+              <div className="flex gap-2">
+                <Input
+                  value={aiTopic}
+                  onChange={(e) => setAiTopic(e.target.value)}
+                  placeholder="Enter a topic to generate a comprehensive blog post..."
+                  disabled={isGenerating || isSubmitting}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleGenerateWithAI}
+                  disabled={!aiTopic.trim() || isGenerating || isSubmitting}
+                  variant="outline"
+                  className="bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:hover:bg-blue-800/50"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      Generate with AI
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Generation Status */}
+              {generationStatus !== 'idle' && (
+                <div className={`p-3 rounded-lg border ${
+                  generationStatus === 'generating' ? 'bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800' :
+                  generationStatus === 'success' ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' :
+                  'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    {generationStatus === 'generating' && (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                          Generating comprehensive blog post with AI... This may take a moment.
+                        </span>
+                      </>
+                    )}
+                    {generationStatus === 'success' && (
+                      <>
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                          Blog content generated successfully! You can now edit and customize it below.
+                        </span>
+                      </>
+                    )}
+                    {generationStatus === 'error' && (
+                      <>
+                        <AlertCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-sm font-medium text-red-700 dark:text-red-300">
+                          Failed to generate blog content. Please check your API configuration and try again.
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Separator />
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
@@ -350,6 +474,61 @@ export function BlogForm() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* AI Generation Section */}
+          <Separator />
+          <div className="space-y-4">
+            <h4 className="font-medium">AI Blog Generation (Optional)</h4>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="ai-topic">Blog Topic or Keywords</Label>
+              <Input
+                id="ai-topic"
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+                placeholder="Enter a topic or keywords for AI to generate content..."
+                disabled={isGenerating || isSubmitting}
+              />
+            </div>
+            <Button
+              type="button"
+              onClick={handleGenerateWithAI}
+              disabled={!aiTopic.trim() || isGenerating || isSubmitting}
+              variant="outline"
+              className="w-full"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Blog Post...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate with AI
+                </>
+              )}
+            </Button>
+            {generationStatus === 'success' && (
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-700">
+                    Blog post generated successfully! You can edit and publish it.
+                  </span>
+                </div>
+              </div>
+            )}
+            {generationStatus === 'error' && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <span className="text-sm text-red-700">
+                    Failed to generate blog post. Please try again.
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Submit Status */}

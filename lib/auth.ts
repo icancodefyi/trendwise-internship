@@ -11,6 +11,9 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
@@ -22,8 +25,5 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken
       return session
     },
-  },
-  pages: {
-    signIn: '/auth/signin',
   },
 }

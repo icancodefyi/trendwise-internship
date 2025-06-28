@@ -54,58 +54,66 @@ const AdminPage = async () => {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <AdminHeader />
       
       {/* Stats Overview */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-12">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Articles</CardTitle>
-            <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        <Card className="border-2 hover:border-primary/20 transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Articles</CardTitle>
+            <div className="p-2 rounded-lg bg-primary/10 border">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">{stats.totalArticles}</div>
-            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+            <div className="text-3xl font-bold text-foreground mb-1">{stats.totalArticles}</div>
+            <p className="text-sm text-muted-foreground">
               +{stats.thisMonthArticles} this month
             </p>
           </CardContent>
         </Card>
         
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Total Views</CardTitle>
-            <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
+        <Card className="border-2 hover:border-primary/20 transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Views</CardTitle>
+            <div className="p-2 rounded-lg bg-primary/10 border">
+              <Eye className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-900 dark:text-green-100">{stats.totalViews.toLocaleString()}</div>
-            <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+            <div className="text-3xl font-bold text-foreground mb-1">{stats.totalViews.toLocaleString()}</div>
+            <p className="text-sm text-muted-foreground">
               +12.5% from last month
             </p>
           </CardContent>
         </Card>
         
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">Comments</CardTitle>
-            <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+        <Card className="border-2 hover:border-primary/20 transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">Comments</CardTitle>
+            <div className="p-2 rounded-lg bg-primary/10 border">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">{stats.totalComments}</div>
-            <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+            <div className="text-3xl font-bold text-foreground mb-1">{stats.totalComments}</div>
+            <p className="text-sm text-muted-foreground">
               +8.2% from last month
             </p>
           </CardContent>
         </Card>
         
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300">Avg. Views</CardTitle>
-            <TrendingUp className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        <Card className="border-2 hover:border-primary/20 transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-semibold text-muted-foreground">Avg. Views</CardTitle>
+            <div className="p-2 rounded-lg bg-primary/10 border">
+              <TrendingUp className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-amber-900 dark:text-amber-100">{Math.round(stats.totalViews / stats.totalArticles)}</div>
-            <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
+            <div className="text-3xl font-bold text-foreground mb-1">{Math.round(stats.totalViews / stats.totalArticles)}</div>
+            <p className="text-sm text-muted-foreground">
               per article
             </p>
           </CardContent>
@@ -120,15 +128,17 @@ const AdminPage = async () => {
 
         {/* Recent Articles */}
         <div>
-          <Card className="border-0 shadow-lg">
+          <Card className="border-2 hover:border-primary/20 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                Recent Articles
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted border">
+                  <BarChart3 className="h-5 w-5 text-foreground" />
+                </div>
+                <div>
+                  <div className="text-xl font-bold">Recent Articles</div>
+                  <p className="text-sm text-muted-foreground font-normal">Latest published content</p>
+                </div>
               </CardTitle>
-              <CardDescription>
-                Latest published content performance
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -149,7 +159,7 @@ const AdminPage = async () => {
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Eye className="h-3.5 w-3.5" />
-                            {article.views.toLocaleString()} views
+                            {article.views.toLocaleString()}
                           </div>
                         </div>
                       </div>
@@ -161,15 +171,14 @@ const AdminPage = async () => {
                       </Badge>
                     </div>
                     {index < recentArticles.length - 1 && (
-                      <Separator className="bg-gradient-to-r from-transparent via-border to-transparent" />
+                      <Separator />
                     )}
                   </div>
                 ))}
               </div>
               
               <div className="pt-6 border-t mt-6">
-                <Button variant="outline" size="sm" className="w-full hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <Sparkles className="h-4 w-4 mr-2" />
+                <Button variant="outline" size="lg" className="w-full font-semibold">
                   View All Articles
                 </Button>
               </div>

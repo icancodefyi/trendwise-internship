@@ -5,46 +5,46 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Settings, Shield, Activity, Zap } from 'lucide-react'
+import { Settings, Shield, Activity, Zap, Users } from 'lucide-react'
 
 export function AdminHeader() {
   const { data: session } = useSession()
 
   return (
-    <div className="mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
-            <Shield className="h-8 w-8 text-primary" />
+    <div className="mb-16">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+        <div className="flex items-center gap-6">
+          <div className="p-4 rounded-2xl bg-primary text-primary-foreground">
+            <Shield className="h-10 w-10" />
           </div>
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <div className="flex items-center gap-3 mb-3">
+              <h1 className="text-5xl font-bold tracking-tight text-foreground">
                 Admin Dashboard
               </h1>
-              <Badge variant="default" className="bg-primary/10 text-primary border-primary/20 font-medium">
-                Admin Access
+              <Badge className="text-sm font-semibold">
+                Administrator
               </Badge>
             </div>
             <p className="text-xl text-muted-foreground">
-              Manage your TrendWise content and monitor performance
+              Manage your TrendWise content and monitor performance metrics
             </p>
           </div>
         </div>
 
         {session && (
-          <Card className="border-0 bg-muted/30 backdrop-blur">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 border-2 border-background">
+          <Card className="border-2 w-fit">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-14 w-14 border-2 border-background">
                   <AvatarImage src={session.user?.image || ''} alt={session.user?.name || ''} />
-                  <AvatarFallback>
+                  <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
                     {session.user?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold text-sm">{session.user?.name}</p>
-                  <p className="text-xs text-muted-foreground">Administrator</p>
+                  <p className="font-bold text-lg">{session.user?.name}</p>
+                  <p className="text-sm text-muted-foreground">Administrator</p>
                 </div>
               </div>
             </CardContent>
@@ -52,27 +52,39 @@ export function AdminHeader() {
         )}
       </div>
 
-      {/* Quick Actions */}
-      <Card className="border-0 bg-gradient-to-r from-muted/50 to-muted/30 backdrop-blur">
+      {/* System Status */}
+      <Card className="border-2">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="font-medium">System Online</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-100 border border-green-200">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+                <span className="font-semibold text-foreground">System Online</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Activity className="h-4 w-4" />
-                <span>AI Generator Ready</span>
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="p-2 rounded-lg bg-muted border">
+                  <Activity className="h-4 w-4" />
+                </div>
+                <span className="font-medium">AI Generator Ready</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Zap className="h-4 w-4" />
-                <span>Auto-publishing Active</span>
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="p-2 rounded-lg bg-muted border">
+                  <Zap className="h-4 w-4" />
+                </div>
+                <span className="font-medium">Auto-publishing Active</span>
+              </div>
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="p-2 rounded-lg bg-muted border">
+                  <Users className="h-4 w-4" />
+                </div>
+                <span className="font-medium">142 Active Users</span>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button size="lg" variant="outline" className="gap-2 font-semibold">
               <Settings className="h-4 w-4" />
-              Settings
+              System Settings
             </Button>
           </div>
         </CardContent>

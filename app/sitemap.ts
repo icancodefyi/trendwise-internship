@@ -1,23 +1,11 @@
 import { MetadataRoute } from 'next'
- 
-export default function sitemap(): MetadataRoute.Sitemap {
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://trendwise.vercel.app'
-  
-  // In a real app, you'd fetch these from your database
-  const articles = [
-    {
-      slug: 'future-ai-web-development-2025',
-      updatedAt: '2024-12-20T00:00:00.000Z'
-    },
-    {
-      slug: 'react-server-components-complete-guide',
-      updatedAt: '2024-12-18T00:00:00.000Z'
-    },
-    {
-      slug: 'typescript-5-new-features-2024',
-      updatedAt: '2024-12-15T00:00:00.000Z'
-    }
-  ]
+
+  // Fetch articles from the /articles endpoint
+  const response = await fetch(`${baseUrl}/articles`)
+  const articles = await response.json()
 
   const staticPages = [
     {
@@ -40,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  const articlePages = articles.map(article => ({
+  const articlePages = articles.map((article: { slug: string; updatedAt: string }) => ({
     url: `${baseUrl}/article/${article.slug}`,
     lastModified: new Date(article.updatedAt),
     changeFrequency: 'weekly' as const,

@@ -5,6 +5,9 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { AdminHeader } from '@/components/admin-header'
 import { BlogForm } from '@/components/blog-form'
+import { ArticleGenerator } from '@/components/article-generator'
+import { TrendingTopics } from '@/components/trending-topics'
+import { TrendingBotControl } from '@/components/trending-bot-control'
 import { 
   BarChart3, 
   FileText, 
@@ -185,6 +188,22 @@ const AdminPage = async () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Trending Topics */}
+        <div className="lg:col-span-1">
+          <TrendingTopics />
+        </div>
+      </div>
+
+      {/* AI Article Generator */}
+      <div className="mt-8">
+        <ArticleGenerator />
+      </div>
+
+
+      {/* Trending Bot Control */}
+      <div className="mt-8">
+        <TrendingBotControl />
       </div>
     </div>
   )

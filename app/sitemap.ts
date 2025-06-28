@@ -3,9 +3,21 @@ import { MetadataRoute } from 'next'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://trendwise.vercel.app'
 
-  // Fetch articles from the /articles endpoint
-  const response = await fetch(`${baseUrl}/articles`)
-  const articles = await response.json()
+  let articles = []
+  
+  try {
+    // Fetch articles from the correct API endpoint
+    const response = await fetch(`${baseUrl}/api/articles`, {
+      next: { revalidate: 3600 } // Revalidate every hour
+    })
+    
+    if (response.ok) {
+      articles = await response.json()
+    }
+  } catch (error) {
+    console.error('Failed to fetch articles for sitemap:', error)
+    // Continue with empty articles array
+  }
 
   const staticPages = [
     {

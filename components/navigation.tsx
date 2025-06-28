@@ -8,7 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -22,6 +21,7 @@ import {
 import { User, LogOut, Settings, PenTool, Plus, Menu, X } from "lucide-react"
 import { ThemeToggle } from "./theme-toggle"
 import { BlogFormModal } from "./blog-form-modal"
+import { SearchComponent } from "@/components/search-component"
 import { useState } from "react"
 
 export function Navigation() {
@@ -74,6 +74,11 @@ export function Navigation() {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
             </Link>
           </nav>
+        </div>
+
+        {/* Search Component */}
+        <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <SearchComponent placeholder="Search articles..." className="w-full" />
         </div>
 
         <div className="flex items-center space-x-4">

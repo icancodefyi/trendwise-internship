@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import clientPromise from "@/lib/mongodb"
 import { GoogleGenerativeAI } from "@google/generative-ai"
-import { fetchMediaContent } from "@/lib/trending-crawler"
+import { mediaService } from "@/lib/media-service"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,16 +12,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Topic is required" }, { status: 400 })
     }
 
-    console.log(`Generating article for topic: ${topic}`)
+    console.log(`Generating draft content for topic: ${topic}`)
 
-    // Fetch real media content if not provided
+    // Fetch real media content using the proper media service
     let realMedia = media
     if (!realMedia || !realMedia.image) {
-      console.log('Fetching real media content...')
+      console.log('Fetching real media content with media service...')
       try {
-        const topicKeywords = keywords || [topic.split(' ').slice(0, 3).join(' ')]
-        realMedia = await fetchMediaContent(topic, topicKeywords)
-        console.log('Media content fetched:', realMedia)
+        realMedia = await mediaService.getTopicMedia(topic)
+        console.log('Media service result:', {
+          image: realMedia.image ? 'Found image' : 'No image',
+          videos: `${realMedia.videos?.length || 0} videos`,
+          tweets: `${realMedia.tweets?.length || 0} tweets`
+        })
       } catch (error) {
         console.error('Error fetching media:', error)
         realMedia = { videos: [], tweets: [] }
@@ -40,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
-    // Enhanced prompt with real media integration
+    // Enhanced prompt for draft generation
     const prompt = `You are a professional technical blog writer specializing in programming and web development.
 
 Write a comprehensive, detailed technical article on: "${topic}"
@@ -141,7 +134,9 @@ ARTICLE REQUIREMENTS:
 - Use RAW HTML tags (not escaped) - example: <h1> not &lt;h1&gt;
 - Make content comprehensive and valuable for developers
 
-RESPOND WITH ONLY THE JSON OBJECT - NO MARKDOWN, NO CODE BLOCKS, NO EXTRA TEXT.`
+RESPOND WITH ONLY THE JSON OBJECT - NO MARKDOWN, NO CODE BLOCKS, NO EXTRA TEXT.
+
+make sure you generate the og tags and meta tags in the response`
 
     const result = await model.generateContent(prompt)
     const response = await result.response
@@ -163,89 +158,36 @@ RESPOND WITH ONLY THE JSON OBJECT - NO MARKDOWN, NO CODE BLOCKS, NO EXTRA TEXT.`
       // Parse the JSON
       articleData = JSON.parse(cleanedResponse)
       
-      console.log('Article data parsed successfully')
+      console.log('Draft content generated successfully')
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError)
       console.log('Raw response:', responseText.substring(0, 500))
       return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 })
     }
 
-    // Generate slug from title
-    const slug = generateSlug(articleData.title)
-
-    // Create the article object with enhanced data
-    const article = {
+    // Return just the content without saving to database
+    return NextResponse.json({ 
+      success: true, 
       title: articleData.title,
-      slug: slug,
       excerpt: articleData.excerpt,
       content: articleData.content,
-      author: 'TrendWise AI',
-      publishedAt: new Date(),
-      updatedAt: new Date(),
       tags: articleData.tags || [],
       category: articleData.category || 'Technology',
-      readTime: Math.ceil(articleData.content.length / 1000), // Rough estimate
-      views: 0,
-      likes: 0,
-      featured: false,
       meta: {
         title: articleData.metaTitle || articleData.title,
         description: articleData.metaDescription || articleData.excerpt,
         keywords: articleData.tags || []
       },
-      media: realMedia || { videos: [], tweets: [] },
-      generatedFrom: {
-        topic: topic,
-        keywords: keywords || [],
-        description: description || '',
-        timestamp: new Date()
+      media: {
+        image: realMedia?.image || null,
+        videos: realMedia?.videos || [],
+        tweets: realMedia?.tweets || []
       }
-    }
-
-    // Store in database
-    try {
-      const client = await clientPromise
-      const db = client.db("trendwise")
-      
-      // Check if article with this slug already exists
-      const existingArticle = await db.collection("articles").findOne({ slug })
-      
-      if (existingArticle) {
-        // Update existing article
-        await db.collection("articles").updateOne(
-          { slug },
-          { 
-            $set: {
-              ...article,
-              updatedAt: new Date()
-            }
-          }
-        )
-        console.log(`Updated existing article: ${slug}`)
-      } else {
-        // Insert new article
-        const result = await db.collection("articles").insertOne(article)
-        console.log(`Created new article: ${slug}`)
-      }
-
-      return NextResponse.json({ 
-        success: true, 
-        article: {
-          id: article.slug,
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          media: article.media
-        }
-      })
-    } catch (error) {
-      console.error("Error storing article:", error)
-      return NextResponse.json({ error: "Failed to store article" }, { status: 500 })
-    }
+    })
   } catch (error) {
-    console.error("Error generating article:", error)
+    console.error("Error generating draft:", error)
     return NextResponse.json({ 
-      error: "Failed to generate article",
+      error: "Failed to generate draft content",
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }

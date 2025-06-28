@@ -147,37 +147,24 @@ export async function fetchHackerNewsTrending(): Promise<TrendingTopic[]> {
 
 // Media Content Fetcher
 export async function fetchMediaContent(topic: string, keywords: string[]): Promise<MediaContent> {
-  const media: MediaContent = {
-    videos: [],
-    tweets: []
-  }
-
+  // Use the improved media service instead of direct API calls
   try {
-    // Fetch related images from Unsplash
-    const imageResponse = await axios.get('https://api.unsplash.com/search/photos', {
-      params: {
-        query: keywords.join(' '),
-        per_page: 1,
-        orientation: 'landscape'
-      },
-      headers: {
-        'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY || 'demo-key'}`
-      }
-    })
-
-    if (imageResponse.data.results?.[0]) {
-      media.image = imageResponse.data.results[0].urls.regular
+    const { mediaService } = await import('./media-service')
+    const result = await mediaService.getTopicMedia(topic)
+    return {
+      image: result.image,
+      videos: result.videos || [],
+      tweets: result.tweets || []
     }
-
-    // Generate YouTube search URLs (since we can't directly embed without API key)
-    const youtubeSearchQuery = encodeURIComponent(`${topic} tutorial programming`)
-    media.videos.push(`https://www.youtube.com/results?search_query=${youtubeSearchQuery}`)
-
   } catch (error) {
     console.error('Error fetching media content:', error)
+    // Fallback to basic content
+    return {
+      image: `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80`,
+      videos: [`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' tutorial')}`],
+      tweets: [`https://twitter.com/search?q=${encodeURIComponent(topic)}`]
+    }
   }
-
-  return media
 }
 
 // Utility function to extract keywords from text

@@ -144,7 +144,7 @@ export class BackendBot {
 
   private async generateArticleFromTopic(topic: TrendingTopic) {
     try {
-      // Call the article generation API
+      // Call the article generation API with media from the topic
       const response = await fetch('http://localhost:3000/api/articles/generate', {
         method: 'POST',
         headers: {

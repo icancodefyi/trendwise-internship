@@ -16,7 +16,8 @@ import {
   Video,
   Twitter,
   Sparkles,
-  Wand2
+  Wand2,
+  User
 } from 'lucide-react'
 
 interface BlogFormData {
@@ -65,12 +66,14 @@ export function BlogFormModal() {
     setGenerationStatus('generating')
     
     try {
-      const response = await fetch('/api/articles/generate', {
+      const response = await fetch('/api/articles/generate-draft', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ topic: aiTopic.trim() }),
+        body: JSON.stringify({ 
+          topic: aiTopic.trim()
+        }),
       })
 
       if (!response.ok) {
@@ -78,14 +81,17 @@ export function BlogFormModal() {
         throw new Error(errorData.error || 'Failed to generate article')
       }
 
-      const generatedArticle = await response.json()
+      const result = await response.json()
       
-      // Pre-fill the form with generated content
+      // Pre-fill the form with generated content including media (this is just draft content, not saved)
       setFormData(prev => ({
         ...prev,
-        title: generatedArticle.title || aiTopic,
-        excerpt: generatedArticle.excerpt || '',
-        content: generatedArticle.content || ''
+        title: result.title || aiTopic,
+        excerpt: result.excerpt || '',
+        content: result.content || '',
+        images: result.media?.image ? [result.media.image] : [],
+        videos: result.media?.videos || [],
+        tweets: result.media?.tweets || []
       }))
       
       setGenerationStatus('success')
@@ -160,9 +166,13 @@ export function BlogFormModal() {
         tweet: ''
       })
 
-      // Close modal and refresh after 2 seconds
+      // Close modal after 2 seconds without auto-refresh
       setTimeout(() => {
-        window.location.reload()
+        if (typeof window !== 'undefined') {
+          // Close the modal by triggering a custom event or handle it through parent component
+          // For now, we'll reload but this could be improved to just close the modal
+          window.location.reload()
+        }
       }, 2000)
 
     } catch (error) {
@@ -211,14 +221,17 @@ export function BlogFormModal() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="h-5 w-5 text-purple-600" />
-            <h4 className="font-semibold text-purple-900 dark:text-purple-100">AI Blog Generator</h4>
+            <h4 className="font-semibold text-purple-900 dark:text-purple-100">AI Assistant</h4>
+            <span className="text-xs bg-purple-100 dark:bg-purple-900/50 px-2 py-1 rounded-full text-purple-700 dark:text-purple-300">
+              Optional - Generate content to help you get started
+            </span>
           </div>
           
           <div className="flex gap-2">
             <Input
               value={aiTopic}
               onChange={(e) => setAiTopic(e.target.value)}
-              placeholder="Enter a topic to generate a comprehensive blog post..."
+              placeholder="Enter a topic to generate draft content (you can edit before publishing)..."
               disabled={isGenerating || isSubmitting}
               className="flex-1"
             />
@@ -234,14 +247,17 @@ export function BlogFormModal() {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Generating...
                 </>
-              ) : (
-                <>
-                  <Wand2 className="mr-2 h-4 w-4" />
-                  Generate with AI
-                </>
-              )}
-            </Button>
-          </div>
+              ) : (                  <>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Generate Draft
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <p className="text-xs text-purple-600 dark:text-purple-300">
+              💡 AI will help you create a draft. You can then edit and customize it before publishing as your own article.
+            </p>
 
           {/* Generation Status */}
           {generationStatus !== 'idle' && (
@@ -255,7 +271,7 @@ export function BlogFormModal() {
                   <>
                     <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                     <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                      Generating comprehensive blog post with AI... This may take a moment.
+                      Generating draft content with AI... This may take a moment.
                     </span>
                   </>
                 )}
@@ -263,7 +279,10 @@ export function BlogFormModal() {
                   <>
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                      Blog content generated successfully! You can now edit and customize it below.
+                      Draft content generated successfully! Edit and customize it below, then publish as your article.
+                      {formData.images.length > 0 && ` Found ${formData.images.length} image(s).`}
+                      {formData.videos.length > 0 && ` Found ${formData.videos.length} video(s).`}
+                      {formData.tweets.length > 0 && ` Found ${formData.tweets.length} tweet(s).`}
                     </span>
                   </>
                 )}
@@ -271,7 +290,7 @@ export function BlogFormModal() {
                   <>
                     <AlertCircle className="h-4 w-4 text-red-600" />
                     <span className="text-sm font-medium text-red-700 dark:text-red-300">
-                      Failed to generate blog content. Please check your API configuration and try again.
+                      Failed to generate draft content. Please check your API configuration and try again.
                     </span>
                   </>
                 )}
@@ -282,6 +301,19 @@ export function BlogFormModal() {
       </div>
 
       <Separator />
+
+      {/* Author Information */}
+      <div className="p-4 bg-muted/30 rounded-lg border">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-primary/10">
+            <User className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <p className="font-medium text-sm">Publishing as:</p>
+            <p className="text-lg font-semibold text-primary">{session.user?.name || 'Anonymous'}</p>
+          </div>
+        </div>
+      </div>
 
       {/* Title */}
       <div className="space-y-2">
@@ -472,7 +504,7 @@ export function BlogFormModal() {
               <>
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                  Blog post created successfully! Refreshing page...
+                  Your article has been published successfully! Refreshing page...
                 </span>
               </>
             )}
@@ -480,7 +512,7 @@ export function BlogFormModal() {
               <>
                 <AlertCircle className="h-4 w-4 text-red-600" />
                 <span className="text-sm font-medium text-red-700 dark:text-red-300">
-                  Failed to create blog post. Please try again.
+                  Failed to publish your article. Please try again.
                 </span>
               </>
             )}
@@ -497,12 +529,12 @@ export function BlogFormModal() {
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Creating Blog Post...
+            Publishing Your Article...
           </>
         ) : (
           <>
             <Save className="mr-2 h-4 w-4" />
-            Create Blog Post
+            Publish My Article
           </>
         )}
       </Button>

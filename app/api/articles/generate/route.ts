@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import clientPromise from "@/lib/mongodb"
 import { GoogleGenerativeAI } from "@google/generative-ai"
-import { fetchMediaContent } from "@/lib/trending-crawler"
+import { mediaService } from "@/lib/media-service"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
@@ -24,14 +24,17 @@ export async function POST(request: NextRequest) {
 
     console.log(`Generating article for topic: ${topic}`)
 
-    // Fetch real media content if not provided
+    // Fetch real media content using the proper media service
     let realMedia = media
     if (!realMedia || !realMedia.image) {
-      console.log('Fetching real media content...')
+      console.log('Fetching real media content with media service...')
       try {
-        const topicKeywords = keywords || [topic.split(' ').slice(0, 3).join(' ')]
-        realMedia = await fetchMediaContent(topic, topicKeywords)
-        console.log('Media content fetched:', realMedia)
+        realMedia = await mediaService.getTopicMedia(topic)
+        console.log('Media service result:', {
+          image: realMedia.image ? 'Found image' : 'No image',
+          videos: `${realMedia.videos?.length || 0} videos`,
+          tweets: `${realMedia.tweets?.length || 0} tweets`
+        })
       } catch (error) {
         console.error('Error fetching media:', error)
         realMedia = { videos: [], tweets: [] }
@@ -141,7 +144,9 @@ ARTICLE REQUIREMENTS:
 - Use RAW HTML tags (not escaped) - example: <h1> not &lt;h1&gt;
 - Make content comprehensive and valuable for developers
 
-RESPOND WITH ONLY THE JSON OBJECT - NO MARKDOWN, NO CODE BLOCKS, NO EXTRA TEXT.`
+RESPOND WITH ONLY THE JSON OBJECT - NO MARKDOWN, NO CODE BLOCKS, NO EXTRA TEXT.
+
+and also make sure og tags and meta tags are included in the response.`
 
     const result = await model.generateContent(prompt)
     const response = await result.response

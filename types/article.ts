@@ -16,11 +16,24 @@ export interface Article {
     description: string
     keywords: string[]
   }
-  media?: {
-    images: string[]
-    videos: string[]
-    tweets: string[]
+  openGraph?: {
+    title: string
+    description: string
+    image?: string
+    type: string
   }
+  media?: {
+    image?: string
+    images?: string[]
+    videos?: string[]
+    tweets?: string[]
+  }
+  // Additional meta fields for better SEO
+  metaTitle?: string
+  metaDescription?: string
+  ogTitle?: string
+  ogDescription?: string
+  ogKeywords?: string[]
 }
 
 export interface Comment {

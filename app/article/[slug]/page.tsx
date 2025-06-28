@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -140,18 +140,43 @@ export async function generateMetadata({ params }: ArticlePageProps) {
     article.publishedAt = new Date(article.publishedAt);
   }
   
+  // Use the enhanced meta fields if available, otherwise fall back to basic fields
+  const metaTitle = article.metaTitle || article.meta?.title || article.title
+  const metaDescription = article.metaDescription || article.meta?.description || article.excerpt
+  const ogTitle = article.ogTitle || article.openGraph?.title || article.title
+  const ogDescription = article.ogDescription || article.openGraph?.description || article.excerpt
+  const ogImage = article.openGraph?.image || article.media?.image || 
+                  (article.media?.images && article.media.images.length > 0 ? article.media.images[0] : null)
+  
+  console.log('Metadata generation:', {
+    metaTitle,
+    metaDescription,
+    ogTitle,
+    ogDescription,
+    ogImage
+  })
+  
   return {
-    title: article.meta.title,
-    description: article.meta.description,
-    keywords: article.meta.keywords,
+    title: metaTitle,
+    description: metaDescription,
+    keywords: article.ogKeywords || article.meta?.keywords || article.tags,
     openGraph: {
-      title: article.title,
-      description: article.meta.description,
-      type: 'article',
+      title: ogTitle,
+      description: ogDescription,
+      type: article.openGraph?.type || 'article',
       publishedTime: article.publishedAt.toISOString(),
       authors: [article.author],
       tags: article.tags,
+      images: ogImage ? [ogImage] : [],
+      url: `/article/${slug}`,
+      siteName: 'TrendWise Blog'
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description: ogDescription,
+      images: ogImage ? [ogImage] : []
+    }
   }
 }
 
@@ -165,9 +190,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  // Debug logging for content
-  console.log('Article content preview:', finalArticle.content.substring(0, 200));
-  console.log('Content includes HTML tags:', finalArticle.content.includes('<'));
+  // Debug logging for content and meta tags
+  console.log('Article meta debug:', {
+    title: finalArticle.title,
+    metaTitle: finalArticle.metaTitle,
+    ogTitle: finalArticle.ogTitle,
+    meta: finalArticle.meta,
+    openGraph: finalArticle.openGraph,
+    media: finalArticle.media
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -248,39 +279,103 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         {/* Article Content */}
         <Card className="mb-12 border-0 shadow-none">
-          <CardContent className="px-0">          <div 
-            className="max-w-none
-              [&_h1]:text-4xl [&_h1]:font-bold [&_h1]:mb-8 [&_h1]:mt-8 [&_h1]:first:mt-0 [&_h1]:text-foreground [&_h1]:tracking-tight
-              [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:mb-6 [&_h2]:mt-10 [&_h2]:pb-3 [&_h2]:border-b [&_h2]:border-border [&_h2]:text-foreground
-              [&_h3]:text-2xl [&_h3]:font-bold [&_h3]:mb-4 [&_h3]:mt-8 [&_h3]:text-foreground
-              [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:mb-3 [&_h4]:mt-6 [&_h4]:text-foreground
-              [&_h5]:text-lg [&_h5]:font-semibold [&_h5]:mb-2 [&_h5]:mt-4 [&_h5]:text-foreground
-              [&_h6]:text-base [&_h6]:font-semibold [&_h6]:mb-2 [&_h6]:mt-4 [&_h6]:text-foreground
-              [&_p]:mb-6 [&_p]:leading-relaxed [&_p]:text-foreground/90
-              [&_ul]:my-6 [&_ul]:space-y-2
-              [&_ol]:my-6 [&_ol]:space-y-2
-              [&_li]:leading-relaxed [&_li]:ml-6 [&_li]:text-foreground/90
-              [&_ul>li]:list-disc
-              [&_ol>li]:list-decimal
-              [&_blockquote]:border-l-4 [&_blockquote]:border-primary/30 [&_blockquote]:pl-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:bg-muted/30 [&_blockquote]:py-4 [&_blockquote]:rounded-r-lg
-              [&_blockquote_p]:mb-0 [&_blockquote_p]:text-muted-foreground
-              [&_strong]:text-foreground [&_strong]:font-semibold
-              [&_em]:italic [&_em]:text-foreground/90
-              [&_code]:bg-muted [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_code]:text-foreground [&_code]:border
-              [&_pre]:bg-muted [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-6 [&_pre]:border
-              [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:border-0
-              [&_a]:text-primary [&_a]:hover:text-primary/80 [&_a]:underline [&_a]:decoration-primary/30 [&_a]:hover:decoration-primary/60 [&_a]:transition-colors
-              [&_img]:rounded-lg [&_img]:my-8 [&_img]:max-w-full [&_img]:h-auto [&_img]:border
-              [&_hr]:my-8 [&_hr]:border-border
-              [&_table]:w-full [&_table]:border-collapse [&_table]:border [&_table]:border-border [&_table]:my-6
-              [&_th]:border [&_th]:border-border [&_th]:px-4 [&_th]:py-2 [&_th]:bg-muted [&_th]:font-semibold [&_th]:text-left
-              [&_td]:border [&_td]:border-border [&_td]:px-4 [&_td]:py-2
-              [&_.content-wrapper]:space-y-4
-              [&_.content-wrapper_p]:mb-4"
-            dangerouslySetInnerHTML={{ __html: validateAndSanitizeHTML(finalArticle.content) }}
-          />
+          <CardContent className="px-0">
+            <div 
+              className="max-w-none
+                [&_h1]:text-4xl [&_h1]:font-bold [&_h1]:mb-8 [&_h1]:mt-8 [&_h1]:first:mt-0 [&_h1]:text-foreground [&_h1]:tracking-tight
+                [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:mb-6 [&_h2]:mt-10 [&_h2]:pb-3 [&_h2]:border-b [&_h2]:border-border [&_h2]:text-foreground
+                [&_h3]:text-2xl [&_h3]:font-bold [&_h3]:mb-4 [&_h3]:mt-8 [&_h3]:text-foreground
+                [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:mb-3 [&_h4]:mt-6 [&_h4]:text-foreground
+                [&_h5]:text-lg [&_h5]:font-semibold [&_h5]:mb-2 [&_h5]:mt-4 [&_h5]:text-foreground
+                [&_h6]:text-base [&_h6]:font-semibold [&_h6]:mb-2 [&_h6]:mt-4 [&_h6]:text-foreground
+                [&_p]:mb-6 [&_p]:leading-relaxed [&_p]:text-foreground/90
+                [&_ul]:my-6 [&_ul]:space-y-2
+                [&_ol]:my-6 [&_ol]:space-y-2
+                [&_li]:leading-relaxed [&_li]:ml-6 [&_li]:text-foreground/90
+                [&_ul>li]:list-disc
+                [&_ol>li]:list-decimal
+                [&_blockquote]:border-l-4 [&_blockquote]:border-primary/30 [&_blockquote]:pl-6 [&_blockquote]:my-8 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:bg-muted/30 [&_blockquote]:py-4 [&_blockquote]:rounded-r-lg
+                [&_blockquote_p]:mb-0 [&_blockquote_p]:text-muted-foreground
+                [&_strong]:text-foreground [&_strong]:font-semibold
+                [&_em]:italic [&_em]:text-foreground/90
+                [&_code]:bg-muted [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_code]:text-foreground [&_code]:border
+                [&_pre]:bg-muted [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-6 [&_pre]:border
+                [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:border-0
+                [&_a]:text-primary [&_a]:hover:text-primary/80 [&_a]:underline [&_a]:decoration-primary/30 [&_a]:hover:decoration-primary/60 [&_a]:transition-colors
+                [&_img]:rounded-lg [&_img]:my-8 [&_img]:max-w-full [&_img]:h-auto [&_img]:border
+                [&_hr]:my-8 [&_hr]:border-border
+                [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg [&_iframe]:my-8 [&_iframe]:border
+                [&_.video-container]:my-8 [&_.video-container]:rounded-lg [&_.video-container]:overflow-hidden [&_.video-container]:border
+                [&_.video-section]:my-8
+                [&_.article-image]:my-8 [&_.article-image]:text-center
+                [&_table]:w-full [&_table]:border-collapse [&_table]:border [&_table]:border-border [&_table]:my-6
+                [&_th]:border [&_th]:border-border [&_th]:px-4 [&_th]:py-2 [&_th]:bg-muted [&_th]:font-semibold [&_th]:text-left
+                [&_td]:border [&_td]:border-border [&_td]:px-4 [&_td]:py-2
+                [&_.content-wrapper]:space-y-4
+                [&_.content-wrapper_p]:mb-4"
+              dangerouslySetInnerHTML={{ __html: validateAndSanitizeHTML(finalArticle.content) }}
+            />
           </CardContent>
         </Card>
+
+        {/* Media Section - Videos and Tweets */}
+        {(finalArticle.media?.videos?.length || finalArticle.media?.tweets?.length) && (
+          <Card className="mb-12">
+            <CardHeader>
+              <CardTitle>Related Media</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {/* Videos */}
+              {finalArticle.media?.videos && finalArticle.media.videos.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Related Videos</h3>
+                  <div className="space-y-6">
+                    {finalArticle.media.videos.map((video, index) => (
+                      <div key={index} className="video-container rounded-lg overflow-hidden border">
+                        <iframe
+                          src={video}
+                          title={`Related video ${index + 1}`}
+                          className="w-full aspect-video"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tweets */}
+              {finalArticle.media?.tweets && finalArticle.media.tweets.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Related Tweets</h3>
+                  <div className="space-y-4">
+                    {finalArticle.media.tweets.map((tweet, index) => (
+                      <div key={index} className="border rounded-lg p-4 bg-muted/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">𝕏</span>
+                          </div>
+                          <span className="text-sm text-muted-foreground">Related Tweet</span>
+                        </div>
+                        <p className="text-sm">{tweet}</p>
+                        <a 
+                          href={typeof tweet === 'string' && tweet.startsWith('http') ? tweet : '#'} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline mt-2 inline-block"
+                        >
+                          View on Twitter →
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Comments Section */}
         <CommentSection articleId={finalArticle._id || 'mock-article-id'} />

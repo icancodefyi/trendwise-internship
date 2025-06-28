@@ -18,6 +18,11 @@ export async function POST(request: NextRequest) {
     let realMedia = media
     if (!realMedia || !realMedia.image) {
       console.log('Fetching real media content with media service...')
+      console.log('Environment check:', {
+        hasUnsplashKey: !!process.env.UNSPLASH_ACCESS_KEY && process.env.UNSPLASH_ACCESS_KEY !== 'demo-key',
+        hasYouTubeKey: !!process.env.YOUTUBE_API_KEY && process.env.YOUTUBE_API_KEY !== 'demo-key',
+        hasTwitterKey: !!process.env.TWITTER_BEARER_TOKEN && process.env.TWITTER_BEARER_TOKEN !== 'demo-key'
+      })
       try {
         realMedia = await mediaService.getTopicMedia(topic)
         console.log('Media service result:', {
@@ -46,15 +51,25 @@ CRITICAL REQUIREMENTS:
 3. ${realMedia?.image ? 'Include the provided featured image naturally in the content' : ''}
 4. Follow this EXACT JSON structure (no deviations):
 
+IMPORTANT: Generate DISTINCT and UNIQUE meta tags for each field:
+
 {
   "title": "Article title (60-80 characters)",
   "excerpt": "Comprehensive summary (150-200 characters)",
   "content": "Full HTML formatted article content (RAW HTML, NOT ESCAPED)",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
   "category": "Technology",
-  "metaTitle": "SEO optimized meta title",
-  "metaDescription": "SEO meta description (150-160 characters)"
+  "metaTitle": "SEO optimized meta title - MUST be different from main title (50-60 characters)",
+  "metaDescription": "Compelling SEO meta description for search engines (150-160 characters)",
+  "ogTitle": "Engaging OpenGraph title for social sharing - MUST be different from main title (60-70 characters)",
+  "ogDescription": "Descriptive OpenGraph description for social media previews (155-200 characters)",
+  "ogKeywords": ["seo", "keyword1", "keyword2", "keyword3", "keyword4"]
 }
+
+EXAMPLE of DISTINCT meta tags:
+- Main title: "Understanding React Server Components"
+- metaTitle: "React Server Components Guide - Performance & SEO Benefits"
+- ogTitle: "Master React Server Components - Complete Developer Guide"
 
 HTML CONTENT STRUCTURE (use exactly these tags - RAW HTML, NOT ESCAPED):
 <h1>Main Article Title</h1>
@@ -74,6 +89,13 @@ ${realMedia?.image ? `<div class="article-image">
 <li><strong>Feature 2:</strong> Detailed explanation</li>
 <li><strong>Feature 3:</strong> Detailed explanation</li>
 </ul>
+
+${realMedia?.videos && realMedia.videos.length > 0 ? `<div class="video-section">
+<h2>Video Resources</h2>
+<div class="video-container mb-6">
+<iframe width="100%" height="315" src="${realMedia.videos[0]}" title="Educational Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+</div>` : ''}
 
 <h2>Implementation and Best Practices</h2>
 <p>Detailed explanation of the current landscape and why this topic matters in today's development world...</p>
@@ -136,7 +158,12 @@ ARTICLE REQUIREMENTS:
 
 RESPOND WITH ONLY THE JSON OBJECT - NO MARKDOWN, NO CODE BLOCKS, NO EXTRA TEXT.
 
-make sure you generate the og tags and meta tags in the response`
+IMPORTANT: Make sure to generate distinct and optimized meta tags:
+- metaTitle: Should be different from the main title, optimized for SEO
+- metaDescription: Should be compelling for search results
+- ogTitle: Should be engaging for social media sharing
+- ogDescription: Should be descriptive for social media previews
+- ogKeywords: Should include relevant SEO keywords`
 
     const result = await model.generateContent(prompt)
     const response = await result.response
@@ -159,11 +186,23 @@ make sure you generate the og tags and meta tags in the response`
       articleData = JSON.parse(cleanedResponse)
       
       console.log('Draft content generated successfully')
+      console.log('Generated meta tags:', {
+        metaTitle: articleData.metaTitle,
+        metaDescription: articleData.metaDescription,
+        ogTitle: articleData.ogTitle,
+        ogDescription: articleData.ogDescription
+      })
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError)
       console.log('Raw response:', responseText.substring(0, 500))
       return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 })
     }
+
+    // Ensure we have proper meta tags - generate fallbacks if missing
+    const finalMetaTitle = articleData.metaTitle || `${articleData.title} - Complete Guide`
+    const finalMetaDescription = articleData.metaDescription || articleData.excerpt || `Learn about ${topic} with this comprehensive guide`
+    const finalOgTitle = articleData.ogTitle || `${articleData.title} | Developer Resource`
+    const finalOgDescription = articleData.ogDescription || articleData.excerpt || `Discover everything you need to know about ${topic}`
 
     // Return just the content without saving to database
     return NextResponse.json({ 
@@ -174,9 +213,15 @@ make sure you generate the og tags and meta tags in the response`
       tags: articleData.tags || [],
       category: articleData.category || 'Technology',
       meta: {
-        title: articleData.metaTitle || articleData.title,
-        description: articleData.metaDescription || articleData.excerpt,
-        keywords: articleData.tags || []
+        title: finalMetaTitle,
+        description: finalMetaDescription,
+        keywords: articleData.ogKeywords || articleData.tags || []
+      },
+      openGraph: {
+        title: finalOgTitle,
+        description: finalOgDescription,
+        image: realMedia?.image || null,
+        type: 'article'
       },
       media: {
         image: realMedia?.image || null,

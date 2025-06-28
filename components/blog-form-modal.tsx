@@ -27,6 +27,17 @@ interface BlogFormData {
   images: string[]
   videos: string[]
   tweets: string[]
+  meta?: {
+    title: string
+    description: string
+    keywords: string[]
+  }
+  openGraph?: {
+    title: string
+    description: string
+    image?: string
+    type: string
+  }
 }
 
 export function BlogFormModal() {
@@ -37,7 +48,9 @@ export function BlogFormModal() {
     content: '',
     images: [],
     videos: [],
-    tweets: []
+    tweets: [],
+    meta: undefined,
+    openGraph: undefined
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -83,6 +96,13 @@ export function BlogFormModal() {
 
       const result = await response.json()
       
+      console.log('AI generation result:', {
+        title: result.title,
+        meta: result.meta,
+        openGraph: result.openGraph,
+        media: result.media
+      })
+      
       // Pre-fill the form with generated content including media (this is just draft content, not saved)
       setFormData(prev => ({
         ...prev,
@@ -91,7 +111,9 @@ export function BlogFormModal() {
         content: result.content || '',
         images: result.media?.image ? [result.media.image] : [],
         videos: result.media?.videos || [],
-        tweets: result.media?.tweets || []
+        tweets: result.media?.tweets || [],
+        meta: result.meta || undefined,
+        openGraph: result.openGraph || undefined
       }))
       
       setGenerationStatus('success')
@@ -122,12 +144,25 @@ export function BlogFormModal() {
         slug,
         excerpt: formData.excerpt.trim() || formData.content.substring(0, 200).trim() + '...',
         content: formData.content.trim(),
-        meta: {
+        meta: formData.meta || {
           title: formData.title.trim(),
           description: formData.excerpt.trim() || formData.content.substring(0, 160).trim(),
           keywords: []
         },
+        openGraph: formData.openGraph || {
+          title: formData.title.trim(),
+          description: formData.excerpt.trim() || formData.content.substring(0, 160).trim(),
+          image: formData.images.length > 0 ? formData.images[0] : undefined,
+          type: 'article'
+        },
+        // Include additional meta fields from AI generation
+        metaTitle: formData.meta?.title,
+        metaDescription: formData.meta?.description,
+        ogTitle: formData.openGraph?.title,
+        ogDescription: formData.openGraph?.description,
+        ogKeywords: formData.meta?.keywords,
         media: {
+          image: formData.images.length > 0 ? formData.images[0] : undefined,
           images: formData.images.filter(url => url.trim()),
           videos: formData.videos.filter(url => url.trim()),
           tweets: formData.tweets.filter(url => url.trim())
@@ -158,7 +193,9 @@ export function BlogFormModal() {
         content: '',
         images: [],
         videos: [],
-        tweets: []
+        tweets: [],
+        meta: undefined,
+        openGraph: undefined
       })
       setMediaInputs({
         image: '',

@@ -30,31 +30,7 @@ interface CommentSectionProps {
 }
 
 // Fallback comments for when API is not available
-const fallbackComments: Comment[] = [
-  {
-    _id: 'fallback-1',
-    articleId: '',
-    userId: 'user1',
-    userName: 'Sarah Chen',
-    userImage: '/avatars/sarah.jpg',
-    content: "This is a fascinating perspective on AI in web development. I've been using GitHub Copilot for a few months now and it's incredible how much it speeds up my workflow. The key insight about AI augmenting rather than replacing developers really resonates with me.",
-    createdAt: new Date('2024-12-20T14:30:00Z'),
-    updatedAt: new Date('2024-12-20T14:30:00Z'),
-    likes: 12,
-    isLiked: false,
-  },
-  {
-    _id: 'fallback-2',
-    articleId: '',
-    userId: 'user2',
-    userName: 'Marcus Rodriguez',
-    content: "Great article! I'd love to see more content about specific AI tools and how to integrate them into existing workflows. Maybe a follow-up piece on prompt engineering best practices?",
-    createdAt: new Date('2024-12-20T16:20:00Z'),
-    updatedAt: new Date('2024-12-20T16:20:00Z'),
-    likes: 8,
-    isLiked: false,
-  }
-]
+const fallbackComments: Comment[] = []
 
 export function CommentSection({ articleId }: CommentSectionProps) {
   const { data: session } = useSession()

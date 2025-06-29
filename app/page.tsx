@@ -152,19 +152,23 @@ const HomePage = async () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="px-8 py-6 text-lg font-semibold shadow-lg">
-              Start Reading
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button size="lg" className="px-8 py-6 text-lg font-semibold shadow-lg" asChild>
+              <Link href="#featured">
+                Start Reading
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="px-8 py-6 text-lg font-semibold">
-              Explore Topics
+            <Button variant="outline" size="lg" className="px-8 py-6 text-lg font-semibold" asChild>
+              <Link href="/categories">
+                Explore Topics
+              </Link>
             </Button>
           </div>
         </section>
 
         {/* Featured Articles */}
         {displayedFeatured.length > 0 && (
-          <section className="mb-20">
+          <section id="featured" className="mb-20">
             <div className="flex items-center justify-between mb-12">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
@@ -175,9 +179,11 @@ const HomePage = async () => {
                   <p className="text-muted-foreground">Hand-picked articles from our editorial team</p>
                 </div>
               </div>
-              <Button variant="outline" className="hidden md:flex">
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button variant="outline" className="hidden md:flex" asChild>
+                <Link href="/trending">
+                  View All
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
             
@@ -252,11 +258,12 @@ const HomePage = async () => {
                 <h2 className="text-3xl font-bold tracking-tight">Latest Articles</h2>
                 <p className="text-muted-foreground">Fresh insights and updates from the tech world</p>
               </div>
-            </div>
-            <Button variant="outline" className="hidden md:flex">
-              View All Articles
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            </div>              <Button variant="outline" className="hidden md:flex" asChild>
+                <Link href="/">
+                  View All Articles
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
           </div>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -321,11 +328,85 @@ const HomePage = async () => {
         </section>
 
         {/* Load More */}
-        <div className="text-center mt-16">
-          <Button variant="outline" size="lg" className="px-12 py-6 text-lg font-semibold">
-            Load More Articles
+        <div className="text-center mt-16 mb-20">
+          <Button variant="outline" size="lg" className="px-12 py-6 text-lg font-semibold" asChild>
+            <Link href="/">
+              Load More Articles
+            </Link>
           </Button>
         </div>
+
+        {/* Additional Features Section */}
+        <section className="mb-20 py-16 rounded-3xl bg-gradient-to-br from-primary/5 via-background to-primary/5 border border-primary/10">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold tracking-tight mb-4">Why Choose TrendWise?</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Discover what makes our platform the go-to destination for tech professionals and enthusiasts
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
+            <div className="text-center p-8 rounded-2xl bg-background/50 backdrop-blur-sm border border-border/50">
+              <div className="flex items-center justify-center mb-6">
+                <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                  <Zap className="h-8 w-8 text-blue-500" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-4">AI-Powered Content</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Our advanced AI algorithms curate and generate high-quality content tailored to the latest tech trends and developments.
+              </p>
+            </div>
+            
+            <div className="text-center p-8 rounded-2xl bg-background/50 backdrop-blur-sm border border-border/50">
+              <div className="flex items-center justify-center mb-6">
+                <div className="p-4 rounded-2xl bg-green-500/10 border border-green-500/20">
+                  <TrendingUp className="h-8 w-8 text-green-500" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Real-Time Trends</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Stay ahead of the curve with real-time trend analysis and insights from across the technology landscape.
+              </p>
+            </div>
+            
+            <div className="text-center p-8 rounded-2xl bg-background/50 backdrop-blur-sm border border-border/50">
+              <div className="flex items-center justify-center mb-6">
+                <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+                  <Users className="h-8 w-8 text-purple-500" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Expert Community</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Join a community of developers, tech leaders, and innovators sharing knowledge and insights.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Call to Action Section */}
+        <section className="text-center py-16 mb-20">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold tracking-tight mb-6">Ready to Stay Ahead?</h2>
+            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+              Join thousands of developers who trust TrendWise for the latest insights, 
+              tutorials, and trends in technology.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button size="lg" className="px-8 py-6 text-lg font-semibold shadow-lg btn-primary" asChild>
+                <Link href="/login">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button variant="outline" size="lg" className="px-8 py-6 text-lg font-semibold" asChild>
+                <Link href="/about">
+                  Learn More
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )

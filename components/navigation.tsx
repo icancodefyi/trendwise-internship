@@ -30,8 +30,9 @@ export function Navigation() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-20 items-center justify-between">
-        <div className="flex items-center space-x-8">
+      <div className="flex h-20 items-center">
+        {/* Logo */}
+        <div className="flex items-center px-4 lg:px-6">
           <Link 
             href="/" 
             className="flex items-center space-x-3 font-bold text-2xl tracking-tight hover:text-primary transition-colors"
@@ -43,7 +44,10 @@ export function Navigation() {
               TrendWise
             </span>
           </Link>
-          
+        </div>
+
+        {/* Centered Navigation */}
+        <div className="flex-1 flex justify-center">
           <nav className="hidden lg:flex items-center space-x-8">
             <Link 
               href="/" 
@@ -76,12 +80,12 @@ export function Navigation() {
           </nav>
         </div>
 
-        {/* Search Component */}
-        <div className="hidden md:flex flex-1 max-w-md mx-8">
-          <SearchComponent placeholder="Search articles..." className="w-full" />
-        </div>
-
+        {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
+          {/* Search Component */}
+          <div className="hidden md:flex max-w-xs">
+            <SearchComponent placeholder="Search articles..." className="w-full" />
+          </div>
           <ThemeToggle />
           
           {session && (
@@ -185,6 +189,11 @@ export function Navigation() {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t bg-background/95 backdrop-blur-sm">
           <nav className="container py-6 space-y-4">
+            {/* Mobile Search */}
+            <div className="md:hidden mb-6">
+              <SearchComponent placeholder="Search articles..." className="w-full" />
+            </div>
+            
             <Link 
               href="/" 
               className="block text-lg font-semibold text-foreground/80 hover:text-primary transition-colors py-2"

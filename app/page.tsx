@@ -10,7 +10,8 @@ import { Article } from '@/types/article'
 // Fetch articles from API
 async function getArticles(): Promise<Article[]> {
   try {
-    const res = await fetch(`/api/articles?limit=20`, {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    const res = await fetch(`${baseUrl}/api/articles?limit=20`, {
       next: { revalidate: 60 }, // Revalidate every 60 seconds
     })
     
@@ -28,6 +29,44 @@ async function getArticles(): Promise<Article[]> {
 }
 
 const mockArticlesForFallback = [
+  {
+    _id: '1',
+    title: 'The Future of AI in Web Development: What Developers Need to Know in 2025',
+    slug: 'future-ai-web-development-2025',
+    excerpt: 'Explore how artificial intelligence is revolutionizing web development workflows, from code generation to automated testing, and what skills developers need to stay relevant.',
+    content: `<h1>The Future of AI in Web Development</h1><p>Artificial Intelligence is no longer a distant concept from science fiction—it's actively reshaping how we build, test, and deploy web applications.</p>`,
+    author: 'TrendWise AI',
+    publishedAt: new Date('2024-12-20'),
+    updatedAt: new Date('2024-12-20'),
+    tags: ['AI', 'Web Development', 'Future Tech', 'Programming'],
+    readTime: 8,
+    views: 1247,
+    featured: true,
+    meta: {
+      title: 'The Future of AI in Web Development',
+      description: 'AI revolutionizing web development workflows',
+      keywords: ['AI', 'web development', 'programming']
+    }
+  },
+  {
+    _id: '2',
+    title: 'React Server Components: A Complete Guide to the New Paradigm',
+    slug: 'react-server-components-complete-guide',
+    excerpt: 'Deep dive into React Server Components, understanding the benefits, implementation patterns, and how they change the way we build React applications.',
+    content: `<h1>React Server Components Guide</h1><p>Deep dive into React Server Components and their revolutionary approach to building modern web applications.</p>`,
+    author: 'TrendWise AI',
+    publishedAt: new Date('2024-12-18'),
+    updatedAt: new Date('2024-12-18'),
+    tags: ['React', 'Server Components', 'Frontend', 'Performance'],
+    readTime: 12,
+    views: 892,
+    featured: false,
+    meta: {
+      title: 'React Server Components Guide',
+      description: 'Complete guide to React Server Components',
+      keywords: ['React', 'server components', 'frontend']
+    }
+  },
   {
     _id: '3',
     title: 'TypeScript 5.0: New Features That Will Transform Your Development Experience',

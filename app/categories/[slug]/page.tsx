@@ -70,21 +70,19 @@ const categoryData = {
 }
 
 interface CategoryPageProps {
-  params: {
-    slug: string
-  }
+  params: Promise<{ slug: string }>
 }
 
-const CategoryPage = ({ params }: CategoryPageProps) => {
-  const { slug } = params
-  const category = categoryData[slug as keyof typeof categoryData]
+const CategoryPage = async ({ params }: CategoryPageProps) => {
+  const { slug } = await params;
+  const category = categoryData[slug as keyof typeof categoryData];
 
   if (!category) {
-    notFound()
+    notFound();
   }
 
-  const featuredArticles = category.articles.filter(article => article.featured)
-  const regularArticles = category.articles.filter(article => !article.featured)
+  const featuredArticles = category.articles.filter(article => article.featured);
+  const regularArticles = category.articles.filter(article => !article.featured);
 
   return (
     <div className="min-h-screen bg-background">
@@ -295,7 +293,7 @@ const CategoryPage = ({ params }: CategoryPageProps) => {
         </section>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CategoryPage
+export default CategoryPage;

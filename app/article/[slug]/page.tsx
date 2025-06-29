@@ -43,8 +43,7 @@ function validateAndSanitizeHTML(content: string): string {
 // Fetch article from API
 async function getArticle(slug: string): Promise<Article | null> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/articles/${slug}`, {
+    const res = await fetch(`/api/articles/${slug}`, {
       next: { revalidate: 60 }, // Revalidate every 60 seconds
     })
     
